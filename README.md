@@ -1,6 +1,6 @@
 
-## 참고 Git repo :
-https://github.com/kimjaebeom98/Sign-Language-Translator.git
+## 참고 Git repo : https://github.com/kimjaebeom98/Sign-Language-Translator.git
+
 
 
 ## 설계 과정 
