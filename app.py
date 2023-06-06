@@ -101,13 +101,10 @@ data_y = data['sentence']
 le = LabelEncoder()
 le.fit(data['sentence'])
 
-#font = ImageFont.truetype("fonts/HMFMMUEX.TTC", 10)
-#font2 = ImageFont.truetype("fonts/HMFMMUEX.TTC", 20)
+
 blue_color = (255,0,0)
 
-# @app.route('/', methods=['POST', 'GET'])
-# def index():
-#     return render_template('index.html')
+
 
 
 def readb64(base64_string):
@@ -138,12 +135,13 @@ sequence = []
 sentence = []
 predictions = []
 count = 0
-# image 이벤트 핸들러 정의 클라이언트에서 image 이벤트 핸들러로 image data를 보냈으니 받는 것
+# image 이벤트 핸들러 정의 클라이언트에서 image 이벤트 보냄
 @socketio.on('image')
 def image(data_image):
     print("Received image data") 
     global sequence, sentence, predictions, count
     threshold = 0.5
+    #사실상 delete는 사용하지 않지만 넣어놓음
     if(data_image == "delete"):
         if(len(sentence) != 0):
             sequence = [] 
@@ -166,60 +164,24 @@ def image(data_image):
             sequence.append(keypoints)
             print(" sequence len : "+str(len(sequence)))
             if (len(sequence) % 30 == 0):
-                sentence_len1 = len(sentence)
                 res = model.predict(np.expand_dims(sequence, axis=0))[0]
-               
-                
-                """
-                predictions.append(np.argmax(res))
-                u = np.bincount(predictions[-1:])
-                b = u.argmax()
-                if b == np.argmax(res): 
-                
-                """
-                
+                #예측한 단어의 정확도가 0.5를 넘는다면
                 if res[np.argmax(res)] > threshold: 
+                    latest_word = actions[np.argmax(res)]
                     if len(sentence) > 0: 
-                        if actions[np.argmax(res)] == 'None':
-                                sentence.append(actions[np.argmax(res)])
+                        if latest_word == 'None':
+                            sentence.append(latest_word)
                         else:
-                            if(actions[np.argmax(res)] != sentence[-1]):
-                                sentence.append(actions[np.argmax(res)])
+                            if(latest_word != sentence[-1]):
+                                sentence.append(latest_word)
                     else:
-                        sentence.append(actions[np.argmax(res)])
-                
-
-                sentence_len2 = len(sentence)
+                        sentence.append(latest_word)
+                    
+                    emit('result', latest_word)
+                    
                 count = 0
                 sequence.clear()
-                if(sentence_len1 != sentence_len2):
-                    
-                    if(len(sentence) >= 5): # if(len(sentence) == 5):
-                        data_form = make_word_df(sentence[0], sentence[1], sentence[2], sentence[3], sentence[4])
-                        input_data = make_num_df(data_form)
-                        y_pred = rlf.predict(input_data)
-                        le.inverse_transform(y_pred)
-                        predict_word = np.array2string(le.inverse_transform(y_pred))
-                        sentence.clear()
-                        
-                        print(" sentence : "+str(sentence))
-                        print(" word : "+str(predict_word))
-                        # emit('result', predict_word)
-                        emit('result', sentence)
-                    else:
-                        # predict_word = sentence[-1]
-                        # emit('response_back', predict_word)
-                        
-                        #예측 실패시 리스폰스 백을 보냄
-                        emit('response_back', sentence)
-                        
-                else:
-                    # predict_word = "failed"
-                    # emit('response_back', predict_word)
-                    
-                    #실패시 리스폰스 백을 보냄
-                    sentence = "failed"
-                    emit('response_back', sentence)
+
             emit('start', 'start')
        
 
