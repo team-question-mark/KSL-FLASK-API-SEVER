@@ -134,14 +134,48 @@ global count, sequence, sentece, predictions
 sequence = []
 sentence = []
 predictions = []
+result_array = [] #result로 보낼 배열
 count = 0
+
+
+
+
+# 여기는 단어만을 계속해서 보낼때 사용하는 로직
+
+#                 #예측한 단어의 정확도가 0.5를 넘는다면
+#                 if res[np.argmax(res)] > threshold: 
+#                     latest_word = actions[np.argmax(res)]
+#                     if len(sentence) > 0: 
+#                         if latest_word == 'None':
+#                             print("None 찍힘 : " + latest_word)
+#                             sentence.append(latest_word)
+#                         else:
+#                             print("정상적으로 들어옴 : " + latest_word)
+#                             if(latest_word != sentence[-1]):
+#                                 sentence.append(latest_word)
+#                     else:
+#                         sentence.append(latest_word)
+#                     print("결과 : " + latest_word)
+#                     emit('result', latest_word)
+                    
+#                 count = 0
+#                 sequence.clear()
+
+#             emit('start', 'start')
+
+
+
+
+
 # image 이벤트 핸들러 정의 클라이언트에서 image 이벤트 보냄
 @socketio.on('image')
 def image(data_image):
-    print("Received image data") 
-    global sequence, sentence, predictions, count
+    #print("이미지 socket 실행완료") 
+    global sequence, sentence, predictions, count, result_array
     threshold = 0.5
-    #사실상 delete는 사용하지 않지만 넣어놓음
+
+
+    # 사실상 delete는 사용하지 않지만 넣어놓음
     if(data_image == "delete"):
         if(len(sentence) != 0):
             sequence = [] 
@@ -158,7 +192,7 @@ def image(data_image):
         frame = (readb64(data_image))
         with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
             count = count+1
-            # Make detections
+
             image, results = mediapipe_detection(frame, holistic)
             keypoints = extract_keypoints(results)
             sequence.append(keypoints)
@@ -168,21 +202,23 @@ def image(data_image):
                 #예측한 단어의 정확도가 0.5를 넘는다면
                 if res[np.argmax(res)] > threshold: 
                     latest_word = actions[np.argmax(res)]
-                    if len(sentence) > 0: 
-                        if latest_word == 'None':
-                            sentence.append(latest_word)
-                        else:
-                            if(latest_word != sentence[-1]):
-                                sentence.append(latest_word)
+                    print(" 예측된 단어 : "+latest_word)
+                    if latest_word == 'None':
+                        print(" 보낼 result : "+ str(result_array))
+                        #결과 보내기
+                        emit('result',result_array)
+                        result_array = []  #배열 초기화
                     else:
-                        sentence.append(latest_word)
-                    
-                    emit('result', latest_word)
+                        # 단어 중복방지 -> 마지막 단어와 새로 추가된 단어가 다를때만 배열에 넣기
+                        if len(result_array) == 0 or (len(result_array) > 0 and result_array[-1] != latest_word):
+                            result_array.append(latest_word)
+                            print(" 담긴 result_array : " + str(result_array))
+
                     
                 count = 0
                 sequence.clear()
 
-            emit('start', 'start')
+            emit('start', 'start')            
        
 
 if __name__ == '__main__':
