@@ -20,11 +20,10 @@ app = Flask(__name__)
 socketio = SocketIO(app,cors_allowed_origins='*' )
 
 
-@socketio.on('connect')
+@socketio.on('connectKSL')
 def on_connect():
-    print('Server received connection')
-
-
+    emit('connectKSL', 'KSL SERVER CONNECTED!')  
+    
 
 mp_holistic = mp.solutions.holistic
 mp_drawing = mp.solutions.drawing_utils
