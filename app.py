@@ -20,9 +20,9 @@ app = Flask(__name__)
 socketio = SocketIO(app,cors_allowed_origins='*' )
 
 
-@socketio.on('connectKSL')
-def on_connect():
-    emit('connectKSL', 'KSL SERVER CONNECTED!')  
+# @socketio.on('connectKSL')
+# def on_connect():
+#     emit('connectKSL', 'KSL SERVER CONNECTED!')  
     
 
 mp_holistic = mp.solutions.holistic
