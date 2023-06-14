@@ -136,7 +136,10 @@ predictions = []
 result_array = [] #result로 보낼 배열
 count = 0
 
-
+@app.get('/ho')
+def abc():
+    print('dijiejfiej'    )
+    return 'as sdfe'
 
 
 # 여기는 단어만을 계속해서 보낼때 사용하는 로직
@@ -222,4 +225,5 @@ def image(data_image):
 
 if __name__ == '__main__':
     #socketio.run(app ,debug=True)
+    app.run(host='0.0.0.0')
     socketio.run(app, debug=True, allow_unsafe_werkzeug=True)

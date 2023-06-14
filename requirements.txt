@@ -1,3 +1,5 @@
+가상환경에 pip install -r requirements.txt 해서 설치
+
 absl-py==1.4.0
 asgiref==3.7.2
 astunparse==1.6.3
