@@ -1,3 +1,5 @@
+## PYTHON 3.7
+
 
 ## 참고 Git repo : https://github.com/kimjaebeom98/Sign-Language-Translator.git
 
